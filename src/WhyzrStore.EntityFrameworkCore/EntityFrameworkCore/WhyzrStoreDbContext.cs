@@ -5,6 +5,8 @@ using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.Modeling;
 using Volo.Abp.Identity;
 using Volo.Abp.Users.EntityFrameworkCore;
+using WhyzrStore.Branches;
+using WhyzrStore.Warehouses;
 
 namespace WhyzrStore.EntityFrameworkCore
 {
@@ -21,6 +23,8 @@ namespace WhyzrStore.EntityFrameworkCore
     public class WhyzrStoreDbContext : AbpDbContext<WhyzrStoreDbContext>
     {
         public DbSet<AppUser> Users { get; set; }
+        public DbSet<Branch> Branches { get; set; }
+        public DbSet<Warehouse> Warehouses { get; set; }
 
         /* Add DbSet properties for your Aggregate Roots / Entities here.
          * Also map them inside WhyzrStoreDbContextModelCreatingExtensions.ConfigureWhyzrStore

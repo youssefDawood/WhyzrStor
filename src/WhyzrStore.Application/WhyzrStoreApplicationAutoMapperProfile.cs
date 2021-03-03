@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using WhyzrStore.Branches;
+using WhyzrStore.Warehouses;
 
 namespace WhyzrStore
 {
@@ -6,9 +8,13 @@ namespace WhyzrStore
     {
         public WhyzrStoreApplicationAutoMapperProfile()
         {
-            /* You can configure your AutoMapper mapping configuration here.
-             * Alternatively, you can split your mapping configurations
-             * into multiple profile classes for a better organization. */
+            CreateMap<Branch, BranchDto>();
+            CreateMap< CreateBranchDto, Branch>();
+            CreateMap< UpdateBranchDto, Branch>();
+            CreateMap<Warehouse, WarehouseDto>();
+            CreateMap<CreateWarehouseDto, Warehouse>();
+            CreateMap<UpdateWarehouseDto, Warehouse>();
+          
         }
     }
 }

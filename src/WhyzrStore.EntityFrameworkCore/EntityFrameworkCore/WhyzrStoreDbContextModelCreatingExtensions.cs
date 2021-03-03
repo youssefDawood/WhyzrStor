@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Volo.Abp;
+using Volo.Abp.EntityFrameworkCore.Modeling;
+using WhyzrStore.Branches;
+using WhyzrStore.Warehouses;
 
 namespace WhyzrStore.EntityFrameworkCore
 {
@@ -9,14 +12,24 @@ namespace WhyzrStore.EntityFrameworkCore
         {
             Check.NotNull(builder, nameof(builder));
 
-            /* Configure your own tables/entities inside here */
+            builder.Entity<Branch>(b=>
+            {
+                b.ToTable(WhyzrStoreConsts.DbTablePrefix + "Branches");
+                b.ConfigureByConvention();
+                b.Property(x => x.Name).HasMaxLength(128);
+                b.HasIndex(x => x.Name);
+                b.HasOne<Branch>().WithMany().HasForeignKey(x => x.ParentId);
+            });
 
-            //builder.Entity<YourEntity>(b =>
-            //{
-            //    b.ToTable(WhyzrStoreConsts.DbTablePrefix + "YourEntities", WhyzrStoreConsts.DbSchema);
-            //    b.ConfigureByConvention(); //auto configure for the base class props
-            //    //...
-            //});
+            builder.Entity<Warehouse>(b =>
+            {
+                b.ToTable(WhyzrStoreConsts.DbTablePrefix + "Warehouses");
+                b.ConfigureByConvention();
+                b.Property(x => x.Name).HasMaxLength(128);
+                b.HasIndex(x => x.Name);
+                b.HasOne<Branch>().WithMany().HasForeignKey(x => x.BranchId).IsRequired();
+            });
+           
         }
     }
 }
