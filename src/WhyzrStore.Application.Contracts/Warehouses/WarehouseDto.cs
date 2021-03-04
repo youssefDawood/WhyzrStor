@@ -10,5 +10,7 @@ namespace WhyzrStore.Warehouses
         public Guid BranchId { get; set; }
         public string  Name { get; set; }
         public string BranchName { get; set; }
+        public string EditorName { get; set; }
+        public string CreatorName { get; set; }
     }
 }

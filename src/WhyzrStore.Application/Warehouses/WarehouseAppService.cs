@@ -9,6 +9,7 @@ using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
 using WhyzrStore.Branches;
 using WhyzrStore.Permissions;
+using WhyzrStore.Users;
 
 namespace WhyzrStore.Warehouses
 {
@@ -17,12 +18,14 @@ namespace WhyzrStore.Warehouses
         PagedAndSortedResultRequestDto, CreateWarehouseDto, UpdateWarehouseDto>, IWarehouseAppService
     {
         private readonly IRepository<Branch, Guid> _branchRepository;
-
+        private readonly IRepository<AppUser, Guid> _userRepository;
         public WarehouseAppService(
+              IRepository<AppUser, Guid> userRepository,
             IRepository<Branch, Guid> branchRepository, 
              IRepository<Warehouse, Guid> repository)
             : base(repository)
         {
+            _userRepository = userRepository;
             _branchRepository = branchRepository;
             GetPolicyName = WhyzrStorePermissions.Warehouses.Defult;
             CreatePolicyName = WhyzrStorePermissions.Warehouses.Create;
@@ -50,6 +53,16 @@ namespace WhyzrStore.Warehouses
 
             var warehouseDto = ObjectMapper.Map<Warehouse, WarehouseDto>(queryResult.warehouse);
             warehouseDto.BranchName = queryResult.branch.Name;
+            if (warehouseDto.CreatorId.HasValue)
+            {
+                warehouseDto.CreatorName = _userRepository
+                    .FirstOrDefault(user => user.Id == warehouseDto.CreatorId).Name;
+            }
+            if (warehouseDto.LastModifierId.HasValue)
+            {
+                warehouseDto.EditorName = _userRepository
+                   .FirstOrDefault(user => user.Id == warehouseDto.CreatorId).Name;
+            }
             return warehouseDto;
         }
 
@@ -76,6 +89,16 @@ namespace WhyzrStore.Warehouses
             {
                 var warehouseDto = ObjectMapper.Map<Warehouse, WarehouseDto>(x.warehouse);
                 warehouseDto.BranchName = x.branch.Name;
+                if (warehouseDto.CreatorId.HasValue)
+                {
+                    warehouseDto.CreatorName = _userRepository
+                        .FirstOrDefault(user => user.Id == warehouseDto.CreatorId).Name;
+                }
+                if (warehouseDto.LastModifierId.HasValue)
+                {
+                    warehouseDto.EditorName = _userRepository
+                       .FirstOrDefault(user => user.Id == warehouseDto.CreatorId).Name;
+                }
                 return warehouseDto;
             }).ToList();
 

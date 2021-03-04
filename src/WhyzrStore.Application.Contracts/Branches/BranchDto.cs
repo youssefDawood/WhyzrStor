@@ -10,6 +10,7 @@ namespace WhyzrStore.Branches
         public Guid? ParentId { get; set; }
         public string Name { get; set; }
         public string ParentName { get; set; }
-
+        public string EditorName { get; set; }
+        public string CreatorName { get; set; }
     }
 }

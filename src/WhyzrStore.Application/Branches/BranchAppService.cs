@@ -8,6 +8,7 @@ using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
 using WhyzrStore.Permissions;
+using WhyzrStore.Users;
 
 namespace WhyzrStore.Branches
 {
@@ -15,9 +16,13 @@ namespace WhyzrStore.Branches
         PagedAndSortedResultRequestDto, CreateBranchDto, UpdateBranchDto>,
         IBranchAppService
     {
-        public BranchAppService(IRepository<Branch, Guid> repository)
+        private readonly IRepository<AppUser, Guid> _userRepository;
+        public BranchAppService(
+          IRepository<AppUser, Guid> userRepository
+            , IRepository<Branch, Guid> repository)
             : base(repository)
         {
+            _userRepository = userRepository;
             GetPolicyName = WhyzrStorePermissions.Branches.Defult;
             CreatePolicyName = WhyzrStorePermissions.Branches.Create;
             UpdatePolicyName = WhyzrStorePermissions.Branches.Edit;
@@ -50,6 +55,16 @@ namespace WhyzrStore.Branches
                     BranchDto.ParentName = queryParentResult.parent.Name;
                 }
             }
+            if (BranchDto.CreatorId.HasValue)
+            {
+                BranchDto.CreatorName = _userRepository
+                    .FirstOrDefault(user => user.Id == BranchDto.CreatorId).Name;
+            }
+            if (BranchDto.LastModifierId.HasValue)
+            {
+                BranchDto.EditorName = _userRepository
+                   .FirstOrDefault(user => user.Id == BranchDto.CreatorId).Name;
+            }
             return BranchDto;
         }
 
@@ -58,28 +73,38 @@ namespace WhyzrStore.Branches
         {
             await CheckGetListPolicyAsync();
 
-          
- 
+
+
             var query = from branch in Repository
-                      orderby input.Sorting
-                      select new { branch };
+                        orderby input.Sorting
+                        select new { branch };
             //Execute the query and get a list
             var queryResult = await AsyncExecuter.ToListAsync(query);
-           
-            var BranchDtos = queryResult.Select( x =>
-            {
-                var BranchDto = ObjectMapper.Map<Branch, BranchDto>(x.branch);
-                if (BranchDto.ParentId.HasValue)
-                {
-                    
-                    var parent =    Repository.FirstOrDefault(b=>b.Id== BranchDto.ParentId);
-                    if (parent != null)
-                    {
-                        BranchDto.ParentName =parent.Name;
-                    }
-                }
-                return BranchDto;
-            }).ToList();
+
+            var BranchDtos = queryResult.Select(x =>
+           {
+               var BranchDto = ObjectMapper.Map<Branch, BranchDto>(x.branch);
+               if (BranchDto.ParentId.HasValue)
+               {
+
+                   var parent = Repository.FirstOrDefault(b => b.Id == BranchDto.ParentId);
+                   if (parent != null)
+                   {
+                       BranchDto.ParentName = parent.Name;
+                   }
+               }
+               if (BranchDto.CreatorId.HasValue)
+               {
+                   BranchDto.CreatorName = _userRepository
+                       .FirstOrDefault(user => user.Id == BranchDto.CreatorId).Name;
+               }
+               if (BranchDto.LastModifierId.HasValue)
+               {
+                   BranchDto.EditorName = _userRepository
+                      .FirstOrDefault(user => user.Id == BranchDto.CreatorId).Name;
+               }
+               return BranchDto;
+           }).ToList();
 
             //Get the total count with another query
             var totalCount = await Repository.GetCountAsync();
