@@ -111,7 +111,39 @@ namespace WhyzrStore.Warehouses
             );
         }
 
+
+        public  async Task<PagedResultDto<WarehouseDto>> GetListWarehousesToBranchAsync(Guid branchId)
+
+        {
+            await CheckGetListPolicyAsync();
+      
+            var branches = _branchRepository.Where(b => b.Id == branchId || b.ParentId == branchId).Select(b=> b.Id).ToList();
        
+            bool check = false;
+                
+                while (check) 
+                {
+                var newBranches = _branchRepository.Where(b => branches.Any(id => id == b.Id) 
+                || b.ParentId != null ? branches.Any(id => id == b.ParentId) : false)
+                    .Select(b => b.Id).ToList();
+                if (branches == newBranches) 
+                {
+                    check = true;
+                } 
+                else
+                {
+                    branches = newBranches;
+                }
+            }
+            
+            var lisWarehouses = Repository.Where(w=> branches.Any(id=>id ==w.BranchId)).ToList();
+            var totalCount = lisWarehouses.Count();
+            var warehousesDto = ObjectMapper.Map<List<Warehouse>, List<WarehouseDto> >(lisWarehouses);
+            return new PagedResultDto<WarehouseDto>(
+                totalCount,
+                warehousesDto
+            );
+        }
 
     }
 }  

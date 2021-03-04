@@ -13,5 +13,7 @@ namespace WhyzrStore.Warehouses
             PagedAndSortedResultRequestDto,
            CreateWarehouseDto, UpdateWarehouseDto>
     {
+        
+        public  Task<PagedResultDto<WarehouseDto>> GetListWarehousesToBranchAsync(Guid branshId);
     }
 }
