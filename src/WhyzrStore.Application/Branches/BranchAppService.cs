@@ -7,16 +7,22 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
+using WhyzrStore.Permissions;
 
 namespace WhyzrStore.Branches
 {
     public class BranchAppService : CrudAppService<Branch, BranchDto, Guid,
-        PagedAndSortedResultRequestDto, CreateBranchDto, UpdateBranchDto>, IBranchAppService
+        PagedAndSortedResultRequestDto, CreateBranchDto, UpdateBranchDto>,
+        IBranchAppService
     {
         public BranchAppService(IRepository<Branch, Guid> repository)
             : base(repository)
         {
-
+            GetPolicyName = WhyzrStorePermissions.Branches.Defult;
+            CreatePolicyName = WhyzrStorePermissions.Branches.Create;
+            UpdatePolicyName = WhyzrStorePermissions.Branches.Edit;
+            DeletePolicyName = WhyzrStorePermissions.Branches.Delete;
+            GetListPolicyName = WhyzrStorePermissions.Branches.Defult;
         }
 
         public override async Task<BranchDto> GetAsync(Guid id)

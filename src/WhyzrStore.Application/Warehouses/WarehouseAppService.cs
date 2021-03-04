@@ -8,6 +8,7 @@ using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
 using WhyzrStore.Branches;
+using WhyzrStore.Permissions;
 
 namespace WhyzrStore.Warehouses
 {
@@ -23,6 +24,11 @@ namespace WhyzrStore.Warehouses
             : base(repository)
         {
             _branchRepository = branchRepository;
+            GetPolicyName = WhyzrStorePermissions.Warehouses.Defult;
+            CreatePolicyName = WhyzrStorePermissions.Warehouses.Create;
+            UpdatePolicyName = WhyzrStorePermissions.Warehouses.Edit;
+            DeletePolicyName = WhyzrStorePermissions.Warehouses.Delete;
+            GetListPolicyName = WhyzrStorePermissions.Warehouses.Defult;
         }
 
         public override async Task<WarehouseDto> GetAsync(Guid id)
