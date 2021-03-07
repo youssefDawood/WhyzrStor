@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -115,7 +117,49 @@ namespace WhyzrStore.Branches
             );
         }
 
+        public async Task<PagedResultDto<BranchDto>> GetSupBranchesToMainBranch(Guid branchId)
+        {
+            await CheckGetListPolicyAsync();
+            var branches = Repository.Where(b => b.ParentId.HasValue&& b.Id == branchId || b.ParentId == branchId).Select(b => b.Id).ToList();
+            bool check = true;
+            while (check)
+            {
+                var newBranches = Repository.Where(b => branches.Any(id => id == b.ParentId.Value) && !branches.Any(id => id == b.Id))
+                    .Select(b => b.Id).ToList();
+                if (newBranches.Count == 0)
+                {
+                    check = false;
+                }
+                else
+                {
+                    branches.AddRange(newBranches);
+                }
+            }
 
+            var listBranches = Repository.Where(b => b.ParentId.HasValue).Where(b => branches.Any(id => id == b.Id)).ToList();
+            var listchildren = listBranches.Where(b => !listBranches.Any(l => b.Id == l.ParentId.Value)).ToList();
+            var totalCount = listchildren.Count();
+            var warehousesDto = ObjectMapper.Map<List<Branch>, List<BranchDto>>(listchildren);
+            return new PagedResultDto<BranchDto>(
+                totalCount,
+                warehousesDto
+            );
+        }
+
+        public override Task<BranchDto> CreateAsync(CreateBranchDto input)
+        {
+
+            //    using var image = Image.Load(input.ImageUrl.OpenReadStream());
+            //var path = "C:\\project\\WhyzrStore\\src\\WhyzrStore.Domain\\NewFolder";
+            //image.Mutate(x => x.Resize(100, 100));
+            //image.Save(path); 
+            //image.Mutate(x => x.Resize(256, 256));
+            //image.Save(path);   
+            //image.Mutate(x => x.Resize(600, 600));
+            //image.Save(path);
+
+            return base.CreateAsync(input);
+        }
     }
 }
 

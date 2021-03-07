@@ -1,4 +1,5 @@
-﻿using System;
+﻿ 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
@@ -12,6 +13,12 @@ namespace WhyzrStore.Branches
         [Required]
         [StringLength(128)]
         public string Name { get; set; }
-         
+
+
+
     }
+    //public class UploidImage
+    //{
+    //    public IFormFile File { get; set; }
+    //}
 }

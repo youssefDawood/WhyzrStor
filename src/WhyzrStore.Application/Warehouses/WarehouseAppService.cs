@@ -116,29 +116,28 @@ namespace WhyzrStore.Warehouses
 
         {
             await CheckGetListPolicyAsync();
-      
-            var branches = _branchRepository.Where(b => b.Id == branchId || b.ParentId == branchId).Select(b=> b.Id).ToList();
-       
-            bool check = false;
-                
-                while (check) 
-                {
-                var newBranches = _branchRepository.Where(b => branches.Any(id => id == b.Id) 
-                || b.ParentId != null ? branches.Any(id => id == b.ParentId) : false)
+
+            var branches = _branchRepository.Where(b => b.Id == branchId || b.ParentId == branchId).Select(b => b.Id).ToList();
+            var children = _branchRepository.Where(b => b.ParentId.HasValue);
+            bool check = true;
+
+            while (check)
+            {
+                var newBranches = children.Where(b => branches.Any(id => id == b.ParentId.Value) && !branches.Any(id => id == b.Id))
                     .Select(b => b.Id).ToList();
-                if (branches == newBranches) 
+                if (newBranches.Count == 0)
                 {
-                    check = true;
-                } 
+                    check = false;
+                }
                 else
                 {
-                    branches = newBranches;
+                    branches.AddRange(newBranches);
                 }
             }
-            
-            var lisWarehouses = Repository.Where(w=> branches.Any(id=>id ==w.BranchId)).ToList();
-            var totalCount = lisWarehouses.Count();
-            var warehousesDto = ObjectMapper.Map<List<Warehouse>, List<WarehouseDto> >(lisWarehouses);
+
+            var warehouses = Repository.Where(w=> branches.Any(id=>id ==w.Id)).ToList();
+            var totalCount = warehouses.Count();
+            var warehousesDto = ObjectMapper.Map<List<Warehouse>, List<WarehouseDto> >(warehouses);
             return new PagedResultDto<WarehouseDto>(
                 totalCount,
                 warehousesDto

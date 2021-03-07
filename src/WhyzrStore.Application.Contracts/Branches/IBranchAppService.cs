@@ -13,6 +13,7 @@ namespace WhyzrStore.Branches
             PagedAndSortedResultRequestDto,
            CreateBranchDto, UpdateBranchDto>
     {
+        public Task<PagedResultDto<BranchDto>> GetSupBranchesToMainBranch(Guid branshId);
 
     }
 }
